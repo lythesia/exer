@@ -9,6 +9,9 @@
 using namespace boost;
 using mpl::_;
 
+using std::cout;
+using std::endl;
+
 typedef mpl::vector_c<int,1,0,0> mass;
 typedef mpl::vector_c<int,0,1,0> length;
 // typedef mpl::vector_c<int,0,0,1> time;
@@ -25,14 +28,8 @@ struct quantity {
   // cast
   template <class OtherD>
     quantity(const quantity<T,OtherD> &rhs) : _value(rhs.value()) {
+      cout << "cast" << endl;
       static_assert(mpl::equal<D, OtherD>::type::value, "D != OtherD");
-    }
-  // assign
-  template <class OtherD>
-    quantity<T,D> &operator=(const quantity<T,OtherD> &rhs) {
-      static_assert(mpl::equal<D, OtherD>::type::value, "D != OtherD");
-      _value = rhs.value();
-      return *this;
     }
 private:
   T _value;
@@ -53,20 +50,16 @@ operator*(quantity<T,D1> x, quantity<T,D2> y) {
 
 int main(int argc, const char *argv[])
 {
-  using std::cout;
-  using std::endl;
   quantity<float, force> f(1.0f);
   quantity<float, mass> m(0.5f);
   quantity<float, acceleration> a(2.0f);
-  // quantity<float, force> ff = m*a; // ok
-  f = m*a;
+  f = m*a; // cast
   cout << f.value() << endl;
 
   f = f + m*a;
   cout << f.value() << endl;
 
-  f = m*a + f;
+  f = m*a + f; // cast
   cout << f.value() << endl;
-  // f = f + m*a;
   return 0;
 }
